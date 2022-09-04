@@ -1,4 +1,5 @@
 const puppeteer = require("puppeteer");
+const extention = "C:\\Users\\ASUS\\AppData\\Local\\Google\\Chrome\\User Data\\Profile 1\\Extensions\\ghbmnnjooekpmoecnnnilnnbdlolhkhi\\1.46.0_0";
 
 const data = [
   "https://185.224.82.193/anime/hack-g-u-trilogy/",
@@ -16,7 +17,9 @@ const checkContentServerMp4 = async (page) => {
       }
     })
   });
-}
+
+
+};
 
 const scraplinkVideo = async (linkEpsVideo) => {
   const browser = await puppeteer.launch({headless: false});

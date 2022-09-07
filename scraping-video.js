@@ -6,19 +6,26 @@ const endpoint = "https://185.224.82.193";
 // const globalDataLink = {}; Ambil dari database episode
 const data = [];
 
-const checkAvaibleIdTitle = async (id) => {
+const checkAvaibleIdTitleInEpisode = async (id) => {
   const conn = await connectToDatabase();
   const result = await queryDatabase(conn, "SELECT * FROM data_episode WHERE id_data_title=?", [id]);
   return result.length;
 };
 
 const scraplinkVideo = async (linksEpsVideo, idTitleAnime) => {
-  const idxCurrentLinkVideo = checkAvaibleIdTitle(idTitleAnime);
+  const idxCurrentLinkVideo = await checkAvaibleIdTitleInEpisode(idTitleAnime);
+  console.log(idxCurrentLinkVideo);
+  let conn;
 
   if (idxCurrentLinkVideo < 1) {
-    const conn = await connectToDatabase();
-    await queryDatabase(conn, "INSERT INTO data_episode (episode, link_per_episode, id_data_title)", [1, linksEpsVideo, idTitleAnime]);
+    conn = await connectToDatabase();
+    await queryDatabase(conn, "INSERT INTO data_episode (episode, link_per_episode, id_data_title) VALUES ?", [[[1, linksEpsVideo[idxCurrentLinkVideo], idTitleAnime]]]);
+  } else {
+    conn = await connectToDatabase();
+    await queryDatabase(conn, "INSERT INTO data_episode (episode, link_per_episode, id_data_title) VALUES ?", [[[idxCurrentLinkVideo + 1, linksEpsVideo[idxCurrentLinkVideo], idTitleAnime]]]);
   }
+
+  console.log("IDXCurrLinkVideo", idxCurrentLinkVideo);
 
   const browser = await puppeteer.launch();
   const page = await browser.newPage();
@@ -41,16 +48,17 @@ const scraplinkVideo = async (linksEpsVideo, idTitleAnime) => {
   });
 
   console.log(srcIframe);
-  // console.log("LINE 50", title);
 
   setTimeout(() => {
     browser.close();
   }, 1000);
 
   if (idxCurrentLinkVideo < linksEpsVideo.length - 1) {
-    globalDataLink[identityEps]++;
-    scraplinkVideo(linksEpsVideo, identityEps);
+    console.log("In If", idxCurrentLinkVideo);
+    scraplinkVideo(linksEpsVideo, idTitleAnime);
   }
+  console.log("Selesai");
+
 };
 
 const getLinkEveryEps = async (linkAnime) => {
@@ -100,28 +108,22 @@ const main = async (linksData) => {
   const dataExtracted = await getIndexToExtract();
   const totalData = await getTotalData();
   const linkForExtract = linksData[dataExtracted];
-  
-  // console.log("All Data", linksData);
-  // console.log("Data Extracted ",dataExtracted);
-  // console.log("Total Data", totalData);
-  // console.log("Current Link For Extract", linkForExtract);
+
   const allLinkPerEps = await getLinkEveryEps(linksData[dataExtracted]);
   console.log("Link Per Eps",allLinkPerEps);
 
   let conn;
 
   conn = await connectToDatabase();
-  const resultIdTitle = await queryDatabase(conn, "SELECT id FROM title_done WHERE link_anime=?", [linkForExtract])
+  const [resultIdTitle] = await queryDatabase(conn, "SELECT id FROM title_done WHERE link_anime=?", [linkForExtract])
 
-  await scraplinkVideo(allLinkPerEps, resultIdTitle);
+  await scraplinkVideo(allLinkPerEps, resultIdTitle.id);
 
   conn = await connectToDatabase();
   await queryDatabase(conn, "UPDATE title_done SET status=? WHERE link_anime=?", ["selesai", linkForExtract]);
 
   if (dataExtracted < totalData) {
-    setTimeout(() => {
-      main(linksData);
-    }, allLinkPerEps.length * 2000);
+    main(linksData);
   }
 };
 

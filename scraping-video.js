@@ -1,30 +1,30 @@
 const puppeteer = require("puppeteer");
-const extention = "C:\\Users\\ASUS\\AppData\\Local\\Google\\Chrome\\User Data\\Profile 1\\Extensions\\ghbmnnjooekpmoecnnnilnnbdlolhkhi\\1.46.0_0";
+const { connectToDatabase, queryDatabase } = require("./database/methods");
+const { pool, mysql } = require("./database/pool");
 
 const endpoint = "https://185.224.82.193";
-const globalDataLink = {};
-const data = [
-  "https://185.224.82.193/anime/hack-g-u-trilogy/",
-  "https://185.224.82.193/anime/youkoso-jitsuryoku-shijou-shugi-no-kyoushitsu-e-tv/",
-  "https://185.224.82.193/anime/boruto-naruto-next-generations/",
-];
+// const globalDataLink = {}; Ambil dari database episode
+const data = [];
 
-const scraplinkVideo = async (linksEpsVideo, identityEps) => {
-  // console.log("LINE 31", globalDataLink);
-  if (!globalDataLink.hasOwnProperty(identityEps)) {
-    globalDataLink[identityEps] = 0;
+const checkAvaibleIdTitle = async (id) => {
+  const conn = await connectToDatabase();
+  const result = await queryDatabase(conn, "SELECT * FROM data_episode WHERE id_data_title=?", [id]);
+  return result.length;
+};
+
+const scraplinkVideo = async (linksEpsVideo, idTitleAnime) => {
+  const idxCurrentLinkVideo = checkAvaibleIdTitle(idTitleAnime);
+
+  if (idxCurrentLinkVideo < 1) {
+    const conn = await connectToDatabase();
+    await queryDatabase(conn, "INSERT INTO data_episode (episode, link_per_episode, id_data_title)", [1, linksEpsVideo, idTitleAnime]);
   }
 
   const browser = await puppeteer.launch();
   const page = await browser.newPage();
-  const idxCurrentLinkVideo = globalDataLink[identityEps];
 
   const linkGotoPage = `${endpoint}${linksEpsVideo[idxCurrentLinkVideo]}`;
-  // console.log("LINE 40", linkGotoPage);
-  // console.log("LINE 42", idxCurrentLinkVideo);
-  // if (linksEpsVideo[idxCurrentLinkVideo] == undefined) {
-  //   console.log("LINE 44", linksEpsVideo);
-  // }
+
   await page.goto(linkGotoPage);
 
   const srcIframe = await page.evaluate(async() => {
@@ -74,19 +74,58 @@ const getLinkEveryEps = async (linkAnime) => {
   });
 };
 
-
-let dataExtracted = 0;
-const main = async (linksData) => {
-  console.log(dataExtracted);
-  const resultAllLinkEps = await getLinkEveryEps(linksData[dataExtracted]);
-  console.log(resultAllLinkEps);
-  const data = await scraplinkVideo(resultAllLinkEps, linksData[dataExtracted]);
-  dataExtracted++;
-  if (dataExtracted < linksData.length) {
-    main(linksData);
-  }
-  // console.log(ResultDataExtracted);
+// Get Current Index to extract data, fetch from database 
+const getIndexToExtract = async () => {
+  const conn = await connectToDatabase();
+  const [resultIndex] = await queryDatabase(conn, "SELECT COUNT(status) AS idx FROM title_done WHERE status=?", ["selesai"]);
+  return resultIndex.idx;
 };
 
+// Get Total data in table database
+const getTotalData = async () => {
+  const conn = await connectToDatabase();
+  const [resultTotal] = await queryDatabase(conn, "SELECT COUNT(link_anime) AS total_data FROM title_done");
+  return resultTotal["total_data"];
+};
+
+// Get All DataLink from database
+const getDataLink =  async () => {
+  const conn = await connectToDatabase();
+  const resultData = await queryDatabase(conn, "SELECT link_anime FROM title_done");
+  const result = resultData.map((rst) => rst.link_anime);
+  data.push(...result);
+};
+
+const main = async (linksData) => {
+  const dataExtracted = await getIndexToExtract();
+  const totalData = await getTotalData();
+  const linkForExtract = linksData[dataExtracted];
+  
+  // console.log("All Data", linksData);
+  // console.log("Data Extracted ",dataExtracted);
+  // console.log("Total Data", totalData);
+  // console.log("Current Link For Extract", linkForExtract);
+  const allLinkPerEps = await getLinkEveryEps(linksData[dataExtracted]);
+  console.log("Link Per Eps",allLinkPerEps);
+
+  let conn;
+
+  conn = await connectToDatabase();
+  const resultIdTitle = await queryDatabase(conn, "SELECT id FROM title_done WHERE link_anime=?", [linkForExtract])
+
+  await scraplinkVideo(allLinkPerEps, resultIdTitle);
+
+  conn = await connectToDatabase();
+  await queryDatabase(conn, "UPDATE title_done SET status=? WHERE link_anime=?", ["selesai", linkForExtract]);
+
+  if (dataExtracted < totalData) {
+    setTimeout(() => {
+      main(linksData);
+    }, allLinkPerEps.length * 2000);
+  }
+};
+
+getDataLink();
 main(data);
+
 

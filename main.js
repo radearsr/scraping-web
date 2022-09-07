@@ -31,8 +31,6 @@ app.get("/", async (req, res) => {
     const conn = await connectToDatabase();
   
     await queryDatabase(conn, "INSERT INTO data_title (link_anime) VALUES ?", [result]);
-    // const sqlCheck = mysql.format("INSERT INTO data_title VALUES link_anime?", [result]);
-    // console.log(sqlCheck);
   
     res.json(result);
     

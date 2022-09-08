@@ -15,8 +15,8 @@ const checkAvaibleIdTitleInEpisode = async (id) => {
 const scraplinkVideo = async (linksEpsVideo, idTitleAnime) => {
   const idxCurrentLinkVideo = await checkAvaibleIdTitleInEpisode(idTitleAnime);
   console.log(idxCurrentLinkVideo);
-  let conn;
 
+  let conn;
   if (idxCurrentLinkVideo < 1) {
     conn = await connectToDatabase();
     await queryDatabase(conn, "INSERT INTO data_episode (episode, link_per_episode, id_data_title) VALUES ?", [[[1, linksEpsVideo[idxCurrentLinkVideo], idTitleAnime]]]);
@@ -55,10 +55,10 @@ const scraplinkVideo = async (linksEpsVideo, idTitleAnime) => {
 
   if (idxCurrentLinkVideo < linksEpsVideo.length - 1) {
     console.log("In If", idxCurrentLinkVideo);
-    scraplinkVideo(linksEpsVideo, idTitleAnime);
+    await scraplinkVideo(linksEpsVideo, idTitleAnime);
   }
   console.log("Selesai");
-
+  console.log(data);
 };
 
 const getLinkEveryEps = async (linkAnime) => {
@@ -96,15 +96,8 @@ const getTotalData = async () => {
   return resultTotal["total_data"];
 };
 
-// Get All DataLink from database
-const getDataLink =  async () => {
-  const conn = await connectToDatabase();
-  const resultData = await queryDatabase(conn, "SELECT link_anime FROM title_done");
-  const result = resultData.map((rst) => rst.link_anime);
-  data.push(...result);
-};
-
 const main = async (linksData) => {
+  
   const dataExtracted = await getIndexToExtract();
   const totalData = await getTotalData();
   const linkForExtract = linksData[dataExtracted];
@@ -117,17 +110,29 @@ const main = async (linksData) => {
   conn = await connectToDatabase();
   const [resultIdTitle] = await queryDatabase(conn, "SELECT id FROM title_done WHERE link_anime=?", [linkForExtract])
 
+  console.log("Before scrap");
   await scraplinkVideo(allLinkPerEps, resultIdTitle.id);
+  console.log("After scrap");
 
   conn = await connectToDatabase();
   await queryDatabase(conn, "UPDATE title_done SET status=? WHERE link_anime=?", ["selesai", linkForExtract]);
+  console.log("After Update");
 
   if (dataExtracted < totalData) {
+    console.log(dataExtracted);
     main(linksData);
   }
 };
 
-getDataLink();
+// Get All DataLink from database
+( async () => {
+  console.log("Hello")
+  const conn = await connectToDatabase();
+  const resultData = await queryDatabase(conn, "SELECT link_anime FROM title_done");
+  const result = resultData.map((rst) => rst.link_anime);
+  data.push(...result);
+  console.log(data);
+})();
 main(data);
 
 

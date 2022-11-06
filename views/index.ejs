@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-Zenh87qX5JnK2Jl0vWa8Ck2rdkQ2Bzep5IDxbcnCeuOxjzrPF/et3URy9Bv1WTRi" crossorigin="anonymous">
+  <title>List Monitoring Anime</title>
+</head>
+<body>
+  <div class="container">
+    <h1 class="fs-1 text-center my-4">ADD MONITORING</h1>
+    <form class="mx-auto shadow-sm p-4 rounded" method="post" action="/monit/add" style="max-width: 500px">
+      <div class="mb-3">
+        <label for="title" class="form-label">Judul Anime</label>
+        <input type="text" name="title" class="form-control" id="title" autocomplete="off">
+      </div>
+      <div class="mb-3">
+        <label for="url-anime" class="form-label">Url Anime</label>
+        <input type="url" name="url" class="form-control" id="url-anime" autocomplete="off">
+      </div>
+      <div class="mb-3">
+        <label for="status-anime" class="form-label">Status</label>
+        <input type="status" name="status" class="form-control" id="status-anime" autocomplete="off">
+      </div>
+      <div class="mb-3">
+        <label for="eps-anime" class="form-label">Episode</label>
+        <input type="number" name="episode" class="form-control" id="eps-anime" autocomplete="off">
+      </div>
+      <div class="mb-3">
+        <label for="day-anime" class="form-label">Day Anime</label>
+        <select class="form-select" name="day">
+          <option selected>Jadwal Rilis</option>
+          <option value="Sunday">Sunday</option>
+          <option value="Monday">Monday</option>
+          <option value="Tuesday">Tuesday</option>
+          <option value="Wednesday">Wednesday</option>
+          <option value="Thursday">Thursday</option>
+          <option value="Friday">Friday</option>
+          <option value="Saturday">Saturday</option>
+        </select>
+      </div>
+      <button type="submit" class="btn btn-primary">Submit</button>
+    </form>
+  </div>
+</body>
+</html>

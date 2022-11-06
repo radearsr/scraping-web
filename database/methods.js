@@ -1,4 +1,4 @@
-const { pool } = require("./pool")
+const { pool, mysql } = require("./pool")
 
 const connectToDatabase = () => (new Promise((resolve, reject) => {
   pool.getConnection((error, conn) => {
@@ -15,4 +15,4 @@ const queryDatabase = (connection, sqlString, escapeStrValue) => (new Promise((r
   });
 }));
 
-module.exports = {connectToDatabase, queryDatabase};
+module.exports = { connectToDatabase, queryDatabase, mysql };

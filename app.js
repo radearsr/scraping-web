@@ -19,7 +19,7 @@ app.listen(3005, () => {
 
 setInterval( async () => {
   await robot.main();
-}, utils.getRandomDuration(3600000, 5400000));
+}, utils.getRandomDuration(10000, 20000));
 
 
 setInterval( async () => {

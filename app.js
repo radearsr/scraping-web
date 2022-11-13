@@ -83,7 +83,6 @@ const getLinkDownloadVideo = async (link) => {
 
 const main = async () => {
   try {
-    // const currDay = "Monday";
     const currDay = utils.getCurrentDay();
     const animes = await mysqlService.getAnimesByDay(currDay, "0");
     if (animes.length < 1) {
@@ -152,7 +151,7 @@ const resetStatus = async () => {
 
 setInterval( async () => {
   await main();
-}, utils.getRandomDuration(39000000, 4000000));
+}, utils.getRandomDuration(1800000, 2400000));
 
 
 setInterval( async () => {
@@ -160,7 +159,7 @@ setInterval( async () => {
   const hours = String(date.getHours()).padStart(2, "0");
   const seconds = String(date.getSeconds()).padStart(2, "0");
 
-  if ((hours === 00 && seconds === 30) || (hours === "00" && seconds === "30")) {
+  if ((hours === 00 && seconds >= 30) || (hours === "00" && seconds >= "30")) {
     await resetStatus();
   }
   date = "";

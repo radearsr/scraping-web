@@ -77,6 +77,7 @@ const getLinkDownloadVideo = async (link) => {
 
 (async() => {
   const browser = await puppeteer.launch();
+  //const browser = await puppeteer.launch({headless: true, args: ["--no-sandbox"]});
   console.log(await browser.version());
   await browser.close();
 })();
@@ -159,7 +160,7 @@ setInterval( async () => {
   const hours = String(date.getHours()).padStart(2, "0");
   const seconds = String(date.getSeconds()).padStart(2, "0");
 
-  if ((hours === 00 && seconds >= 30) || (hours === "00" && seconds >= "30")) {
+  if ((hours === 00 && seconds >= 40) || (hours === "00" && seconds >= "40")) {
     await resetStatus();
   }
   date = "";

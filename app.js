@@ -23,9 +23,13 @@ const sendNotifToTelegram = async (token, msgId, message,  title, episode, statu
 const getLinkDownloadPage = async (linkAnime, currentEps) => {
   let browser;
   try {
-    // browser = await puppeteer.launch();
-    // browser = await puppeteer.launch({headless: true, args: ["--no-sandbox"]});
-    browser = await puppeteer.launch({headless: false});
+    if (process.env.BROWSER_TYPE === "1") {
+      browser = await puppeteer.launch({headless: false});
+    } else if (process.env.BROWSER_TYPE === "2") {
+      browser = await puppeteer.launch({headless: true, args: ["--no-sandbox"],  executablePath: "/usr/bin/chromium-browser"});
+    } else {
+      browser = await puppeteer.launch({headless: true, args: ["--no-sandbox"]});
+    }
     const page = await browser.newPage();
     await page.goto(linkAnime, {waitUntil: "networkidle0", timeout: 90000});
   
@@ -37,7 +41,7 @@ const getLinkDownloadPage = async (linkAnime, currentEps) => {
     });
     
     if (result.length > currentEps) {
-      console.log("Link Page Download Didapat...");
+      sendNotifToTelegram(process.env.BOT_TOKEN, process.env.GROUP_ID, error, "Link page download didapat...", "", 0);
       return result[0];
     }
     return false;
@@ -53,9 +57,13 @@ const getLinkDownloadPage = async (linkAnime, currentEps) => {
 const getLinkDownloadVideo = async (link) => {
   let browser;
   try {
-    // browser = await puppeteer.launch();
-    // browser = await puppeteer.launch({headless: true, args: ["--no-sandbox"]});
-    browser = await puppeteer.launch({headless: false});
+    if (process.env.BROWSER_TYPE === "1") {
+      browser = await puppeteer.launch({headless: false});
+    } else if (process.env.BROWSER_TYPE === "2") {
+      browser = await puppeteer.launch({headless: true, args: ["--no-sandbox"],  executablePath: "/usr/bin/chromium-browser"});
+    } else {
+      browser = await puppeteer.launch({headless: true, args: ["--no-sandbox"]});
+    }
     const page = await browser.newPage();
     await page.goto(link, {waitUntil: "networkidle0", timeout: 240000});
     await page.waitForSelector("#venkonten > div.venser > div.venutama > div.download > ul:nth-child(2) > li:nth-child(3) > a", {visible: true, timeout: 240000});
@@ -64,20 +72,24 @@ const getLinkDownloadVideo = async (link) => {
       const selectorLinkDownloadEpisode = "#venkonten > div.venser > div.venutama > div.download > ul:nth-child(2) > li:nth-child(3) > a";
       return [...document.querySelectorAll(selectorLinkDownloadEpisode)].map((anchor) => ({link: anchor.href, text: anchor.textContent}))
     });
-    console.log("Link Download Anime Didapat...");
+    sendNotifToTelegram(process.env.BOT_TOKEN, process.env.GROUP_ID, error, "Link download video didapat...", "", 0);
     return result;
   } catch (error) {
-    sendNotifToTelegram(process.env.BOT_TOKEN, process.env.GROUP_ID, error, "Get Link Download Video", "", 0);
-    console.error(error);
-    return false;
+    return sendNotifToTelegram(process.env.BOT_TOKEN, process.env.GROUP_ID, error, "Get Link Download Video", "", 0);
   } finally {
     browser.close();
   }
 }
 
 (async() => {
-  const browser = await puppeteer.launch();
-  //const browser = await puppeteer.launch({headless: true, args: ["--no-sandbox"]});
+  let browser;
+  if (process.env.BROWSER_TYPE === "1") {
+    browser = await puppeteer.launch({headless: false});
+  } else if (process.env.BROWSER_TYPE === "2") {
+    browser = await puppeteer.launch({headless: true, args: ["--no-sandbox"],  executablePath: "/usr/bin/chromium-browser"});
+  } else {
+    browser = await puppeteer.launch({headless: true, args: ["--no-sandbox"]});
+  }
   console.log(await browser.version());
   await browser.close();
 })();
@@ -86,9 +98,9 @@ const main = async () => {
   try {
     const currDay = utils.getCurrentDay();
     const animes = await mysqlService.getAnimesByDay(currDay, "0");
+    sendNotifToTelegram(process.env.BOT_TOKEN, process.env.GROUP_ID, error, `Hari ini ${currDay}`, "", 0);
     if (animes.length < 1) {
-      console.log("Anime tidak ada didatabase...");
-      return false;
+      return sendNotifToTelegram(process.env.BOT_TOKEN, process.env.GROUP_ID, error, "Anime tidak ada didatabase...", "", 0);
     }
 
     const links = (time, anime) => {
@@ -106,7 +118,7 @@ const main = async () => {
           });
         }, time);
       })
-    }
+    };
 
     const downloadPages = await Promise.all(animes.map( async (anime, index) => {
       try {
@@ -120,7 +132,7 @@ const main = async () => {
 
     await Promise.all(downloadPages.map( async (downloadPage, index) => {
       if (downloadPage === false || downloadPage === undefined) {
-        console.log("Belum ada update...");
+        return sendNotifToTelegram(process.env.BOT_TOKEN, process.env.GROUP_ID, error, "Belum ada update...", "", 0);
       } else {
         console.log("Link download", downloadPage.link_download);
         setTimeout( async () => {
@@ -150,9 +162,12 @@ const resetStatus = async () => {
 }
 
 
+const duration =  utils.getRandomDuration(1800000, 2400000);
+
 setInterval( async () => {
   await main();
-}, utils.getRandomDuration(1800000, 2400000));
+  sendNotifToTelegram(process.env.BOT_TOKEN, process.env.GROUP_ID, error, `Main Running After ${duration}`, "", 0);
+}, duration);
 
 
 setInterval( async () => {
@@ -161,6 +176,7 @@ setInterval( async () => {
   const seconds = String(date.getSeconds()).padStart(2, "0");
 
   if ((hours === 00 && seconds >= 40) || (hours === "00" && seconds >= "40")) {
+    sendNotifToTelegram(process.env.BOT_TOKEN, process.env.GROUP_ID, error, "Reset status database...", "", 0);
     await resetStatus();
   }
   date = "";

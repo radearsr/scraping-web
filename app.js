@@ -25,10 +25,12 @@ const getLinkDownloadPage = async (linkAnime, currentEps) => {
   try {
     if (process.env.BROWSER_TYPE === "1") {
       browser = await puppeteer.launch({headless: false});
+
     } else if (process.env.BROWSER_TYPE === "2") {
       browser = await puppeteer.launch({headless: true, args: ["--no-sandbox"],  executablePath: "/usr/bin/chromium-browser"});
     } else {
       browser = await puppeteer.launch({headless: true, args: ["--no-sandbox"]});
+
     }
     const page = await browser.newPage();
     await page.goto(linkAnime, {waitUntil: "networkidle0", timeout: 90000});
@@ -57,9 +59,9 @@ const getLinkDownloadPage = async (linkAnime, currentEps) => {
 const getLinkDownloadVideo = async (link) => {
   let browser;
   try {
-    if (process.env.BROWSER_TYPE === "1") {
+    if (process.env.BROWSER_CONF === "1") {
       browser = await puppeteer.launch({headless: false});
-    } else if (process.env.BROWSER_TYPE === "2") {
+    } else if (process.env.BROWSER_CONF === "2") {
       browser = await puppeteer.launch({headless: true, args: ["--no-sandbox"],  executablePath: "/usr/bin/chromium-browser"});
     } else {
       browser = await puppeteer.launch({headless: true, args: ["--no-sandbox"]});
@@ -83,10 +85,10 @@ const getLinkDownloadVideo = async (link) => {
 
 (async() => {
   let browser;
-  if (process.env.BROWSER_TYPE === "1") {
+  if (process.env.BROWSER_CONF === "1") {
     browser = await puppeteer.launch({headless: false});
-  } else if (process.env.BROWSER_TYPE === "2") {
-    browser = await puppeteer.launch({headless: true, args: ["--no-sandbox"],  executablePath: "/usr/bin/chromium-browser"});
+  } else if (process.env.BROWSER_CONF === "2") {
+    browser = await puppeteer.launch({headless: true, args: ["--no-sandbox"],  executablePath: "/usr/bin/chromium-browser"})
   } else {
     browser = await puppeteer.launch({headless: true, args: ["--no-sandbox"]});
   }

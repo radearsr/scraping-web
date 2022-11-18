@@ -54,7 +54,6 @@ const main = async () => {
 main();
 
 const time = utils.getRandomDuration(1800000, 2400000);
-
 setInterval( async () => {
   await main();
   await teleService.sendNotifFailed(process.env.BOT_TOKEN, process.env.GROUP_ID, "Waktu Mulai Ulang Dalam Menit", (time / 60000), "60");

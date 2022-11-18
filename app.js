@@ -61,7 +61,7 @@ setInterval( async () => {
   const hours = String(date.getHours()).padStart(2, "0");
   const seconds = String(date.getSeconds()).padStart(2, "0");
 
-  if ((hours === "00" && seconds >= "40") && (hours === "00" && seconds >= "46")) {
+  if ((hours === "00" && seconds >= "40") && (hours === "00" && seconds <= "46")) {
     await teleService.sendNotifFailed(process.env.BOT_TOKEN, process.env.GROUP_ID, "ALERT", "Database Reset Status To 0", "65");
     await resetStatus();
   }

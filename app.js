@@ -35,14 +35,14 @@ const main = async () => {
             await teleService.sendNotifSuccess(process.env.BOT_TOKEN, process.env.GROUP_ID, linkPageDownload.title, linkPageDownload.eps, dataLinkDownloadVideo);
             await mysqlService.updateAnimesById(linkPageDownload.eps, "1", linkPageDownload.id);
           } else {
-            await teleService.sendNotifFailed(process.env.BOT_TOKEN, process.env.GROUP_ID, "Error Gagal Dapat Download Video", error, "36");
+            await teleService.sendNotifFailed(process.env.BOT_TOKEN, process.env.GROUP_ID, "Error Gagal Dapat Download Video", error, "38");
           }
         } catch (error) {
-          await teleService.sendNotifFailed(process.env.BOT_TOKEN, process.env.GROUP_ID, "Error Link Page Download", error, "39");
+          await teleService.sendNotifFailed(process.env.BOT_TOKEN, process.env.GROUP_ID, "Error Link Page Download", error, "41");
         }
       }));
     } else {
-      await teleService.sendNotifFailed(process.env.BOT_TOKEN, process.env.GROUP_ID, "Anime belum ada yang update hari ini...", "Ditunggu...", "43");
+      await teleService.sendNotifFailed(process.env.BOT_TOKEN, process.env.GROUP_ID, "Anime belum ada yang update hari ini...", "Ditunggu...", "45");
     }
 
   } catch (error) {
@@ -54,8 +54,10 @@ const main = async () => {
 main();
 
 const time = utils.getRandomDuration(1800000, 2400000);
+
 setInterval( async () => {
   await main();
+  await teleService.sendNotifFailed(process.env.BOT_TOKEN, process.env.GROUP_ID, "Waktu Mulai Ulang Dalam Menit", (time / 60000), "60");
 }, time);
 
 setInterval( async () => {
@@ -64,7 +66,7 @@ setInterval( async () => {
   const seconds = String(date.getSeconds()).padStart(2, "0");
 
   if ((hours === "00" && seconds >= "40") && (hours === "00" && seconds <= "46")) {
-    await teleService.sendNotifFailed(process.env.BOT_TOKEN, process.env.GROUP_ID, "ALERT", "Database Reset Status To 0", "65");
+    await teleService.sendNotifFailed(process.env.BOT_TOKEN, process.env.GROUP_ID, "ALERT", "Database Reset Status To 0", "69");
     await resetStatus();
   }
   date = "";

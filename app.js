@@ -10,7 +10,7 @@ const main = async () => {
     const currentDay = utils.getCurrentDay()
     const animes = await mysqlService.getAnimesByDay(currentDay, "0");
     const linkPageDownloads = await Promise.all(animes.map( async (anime, index) => {
-      const timeout = index * 3000;
+      const timeout = index * 5000;
       const result = await cheerioService.checkUpdateAndGetLinkDownload(anime.link, anime.episode, timeout);
       if (result.status) {
         return {
@@ -20,14 +20,16 @@ const main = async () => {
           eps: parseFloat(anime.episode) + 1
         };
       } else {
-        await teleService.sendNotifFailed(process.env.BOT_TOKEN, process.env.GROUP_ID, "Anime Belum Update", anime.title, "23");
+        await teleService.sendNotifFailed(process.env.BOT_TOKEN, process.env.GROUP_ID, "Anime Belum Update", anime.name, "23");
       }
     }));
 
-    if (linkPageDownloads.length >= 1) {
-      Promise.all(linkPageDownloads.map( async (linkPageDownload, index) => {
+    const filteredlinkPageDownloads = linkPageDownloads.filter((linkDownload) => linkDownload !== undefined);
+
+    if (filteredlinkPageDownloads.length >= 1) {
+      Promise.all(filteredlinkPageDownloads.map( async (linkPageDownload, index) => {
         try {
-          const timeout = index * 3000;
+          const timeout = index * 5000;
           const dataLinkDownloadVideo = await cheerioService.getLinkDownloadVideo720p(linkPageDownload.link, timeout);
           if(dataLinkDownloadVideo.length >= 1) {
             await teleService.sendNotifSuccess(process.env.BOT_TOKEN, process.env.GROUP_ID, linkPageDownload.title, linkPageDownload.eps, dataLinkDownloadVideo);

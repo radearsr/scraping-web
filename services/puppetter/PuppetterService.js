@@ -24,4 +24,30 @@ exports.scrapingLinkStreamingVideo = async (link) => {
   } finally {
     browser.close();
   }
+};
+
+exports.getBrowserVersion = async () => {
+  let browser;
+  if (process.env.BROWSER_CONF === "1") {
+    browser = await puppeteer.launch({headless: false});
+  } else if (process.env.BROWSER_CONF === "2") {
+    browser = await puppeteer.launch({headless: true, args: ["--no-sandbox"],  executablePath: "/usr/bin/chromium-browser"})
+  } else {
+    browser = await puppeteer.launch({headless: true, args: ["--no-sandbox"]});
+  }
+  console.log(await browser.version());
+  await browser.close();
 }
+
+// (async() => {
+//   let browser;
+//   if (process.env.BROWSER_CONF === "1") {
+//     browser = await puppeteer.launch({headless: false});
+//   } else if (process.env.BROWSER_CONF === "2") {
+//     browser = await puppeteer.launch({headless: true, args: ["--no-sandbox"],  executablePath: "/usr/bin/chromium-browser"})
+//   } else {
+//     browser = await puppeteer.launch({headless: true, args: ["--no-sandbox"]});
+//   }
+//   console.log(await browser.version());
+//   await browser.close();
+// })();

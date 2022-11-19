@@ -3,6 +3,7 @@ const utils = require("./utils/");
 const mysqlService = require("./services/mysql/MysqlService");
 const puppeteer = require("puppeteer");
 const axios = require("axios");
+const cheerio = require("cheerio");
 
 const sendNotifToTelegram = async (token, msgId, message,  title, episode, status=1) => {
   try {
@@ -184,4 +185,41 @@ setInterval( async () => {
   date = "";
 }, 1000);
 
-main();
+// main();
+
+const scrapingVideo = async (link) => {
+  let browser;
+  try {
+    browser = await puppeteer.launch();
+    if (process.env.BROWSER_CONF === "1") {
+      // browser = await puppeteer.launch({headless: false});
+    } else if (process.env.BROWSER_CONF === "2") {
+      browser = await puppeteer.launch({headless: true, args: ["--no-sandbox"],  executablePath: "/usr/bin/chromium-browser"});
+    } else {
+      browser = await puppeteer.launch({headless: true, args: ["--no-sandbox"]});
+    }
+    const page = await browser.newPage();
+    await page.goto(link, {waitUntil: "networkidle2", timeout: 300000});
+    await page.waitForSelector("#player > .jw-wrapper > .jw-media > .jw-video", { timeout: 300000 });
+    const imgSrc = await page.$eval("#player > .jw-wrapper > .jw-media > .jw-video", (el) => el.src);
+    console.log("=====");
+    if (imgSrc !== "") {
+      console.log(imgSrc);
+    } else {
+      console.log("Aku Else");
+      await scrapingVideo(link);
+    }
+    console.log(typeof imgSrc);
+    console.log("=====");
+  } catch (error) {
+    throw error;
+  } finally {
+    browser.close();
+  }
+}
+
+scrapingVideo("http://gdriveplayer.to/embed2.php?link=Z340bSdNA2yNJb%2FhIQ4JwA0U7WkvwDWkicFkozeM36ZYRVQscuHqooZJOEdyQHo5VPzP%2BMwI83AYLNwC9A%2BWGIvzPTIjoFgHG%2FI8Ti3nzdbF6xJ06%2F%2FydwXcd7as12JKt5hoFxq8auKlQ5nBj%2FUAFpZiinKPyKTM4ISLk9QXR8OWh%2Fdy%2FJRD17vDQn8IqXlUAy9TcNSOyC0RTz0e3E1ZVI&no_adult=yes").then((result) => {
+  // console.log(result);
+  // const $ = cheerio.load(result);
+  // console.log($("#player > .jw-wrapper > .jw-media > .jw-video").attr("src"))
+}).catch((error) => {throw error});

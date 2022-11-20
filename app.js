@@ -66,21 +66,23 @@ const main = async () => {
   }
 };
 
-main();
+// main();
 
-setInterval( async () => {
-  await main();
-  await teleService.sendNotifFailed(process.env.BOT_TOKEN, process.env.GROUP_ID, "Waktu Mulai Ulang Dalam Menit", (time / 60000), "60");
-}, 300000);
+// setInterval( async () => {
+//   await main();
+//   await teleService.sendNotifFailed(process.env.BOT_TOKEN, process.env.GROUP_ID, "Waktu Mulai Ulang Dalam Menit", (time / 60000), "60");
+// }, 300000);
 
-setInterval( async () => {
-  let date = new Date();
-  const hours = String(date.getHours()).padStart(2, "0");
-  const seconds = String(date.getSeconds()).padStart(2, "0");
+// setInterval( async () => {
+//   let date = new Date();
+//   const hours = String(date.getHours()).padStart(2, "0");
+//   const seconds = String(date.getSeconds()).padStart(2, "0");
 
-  if ((hours === "00" && seconds > "40") && (hours === "00" && seconds <= "46")) {
-    await resetStatus();
-    await teleService.sendNotifFailed(process.env.BOT_TOKEN, process.env.GROUP_ID, "ALERT", "Database Reset Status To 0", "69");
-  }
-  date = "";
-}, 1000);
+//   if ((hours === "00" && seconds > "40") && (hours === "00" && seconds <= "46")) {
+//     await resetStatus();
+//     await teleService.sendNotifFailed(process.env.BOT_TOKEN, process.env.GROUP_ID, "ALERT", "Database Reset Status To 0", "69");
+//   }
+//   date = "";
+// }, 1000);
+
+

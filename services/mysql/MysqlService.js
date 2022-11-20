@@ -35,3 +35,19 @@ exports.checkStatusUpdateAnime = async (day) => {
   const result = await queryDatabase(conn, sql, sqlEscapeStr);
   return result;
 };
+
+exports.getLinkAnimes = async () => {
+  const conn = await connectToDatabase();
+  const sql = "SELECT * FROM anime_lists WHERE title_anime LIKE 'a%' AND status='0'";
+  const result = await queryDatabase(conn, sql);
+  return result;
+};
+
+exports.updateStatusListAnime = async (status, id) => {
+  const conn = await connectToDatabase();
+  const sql = "UPDATE anime_lists SET status=? WHERE id=?";
+  const sqlEscapeStr = [status, id];
+  await queryDatabase(conn, sql, sqlEscapeStr);
+};
+
+exports.insertLink

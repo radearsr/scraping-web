@@ -52,3 +52,51 @@ exports.getLinkDownloadVideo720p = async (pageLink, timeout) => {
     throw error;
   }
 };
+
+exports.getLinkStreamingPagePerEpisode = async (pageLink, timeout) => {
+	try {
+    const response = await axios.get(pageLink, { timeout });
+    if (response.status !== 200) {
+      throw new Error("Status : ", response.status);
+    }
+    const $ = cheerio.load(response.data);
+    const allLinkStreaming = [];
+    $("#content-wrap > div.ngirix > div:nth-child(4) > div.ep > a").each((_idx, el) => {
+      const text = parseFloat($(el).text());
+      const link = $(el).attr("href");
+			postTitles.push({
+				eps: text,
+				link: `https://185.224.82.193${link}`
+			});
+    });
+    return allLinkStreaming;
+	} catch (error) {
+		throw error;
+	}
+};
+
+
+exports.getStreamingLink = async (pageLink) => {
+	try {
+    const response = await axios.get(pageLink, { timeout });
+    if (response.status !== 200) {
+      throw new Error("Status : ", response.status);
+    }
+    const $ = cheerio.load(response.data);
+    const videoLinks = [];
+
+		$("#content-wrap > div.ngiri > div:nth-child(2) > div.servers > a").each((_idx, el) => {
+      const text = $(el).text().trim();
+			const link = $(el).attr("data-video");
+			if (text === "GDRIVE" || text === "GDRIVE HD") {
+				videoLinks.push({
+					title: text,
+					link: `https:${link}`,
+				});
+			}
+		});
+		return videoLinks;
+	} catch (error) {
+		throw error;
+	}
+};

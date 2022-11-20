@@ -26,3 +26,12 @@ exports.updateStatusAnime = async (day) => {
   const result = await queryDatabase(conn, sql, sqlEscapeStr);
   console.log(result);
 };
+
+exports.checkStatusUpdateAnime = async (day) => {
+  const conn = await connectToDatabase();
+  const sql = "SELECT name from monitoring_anime where day != ? and status='1'";
+  const sqlEscapeStr = [day];
+  console.log(mysql.format(sql, sqlEscapeStr));
+  const result = await queryDatabase(conn, sql, sqlEscapeStr);
+  return result;
+};

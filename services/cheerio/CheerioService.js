@@ -1,5 +1,6 @@
 const axios = require("axios");
 const cheerio = require("cheerio");
+const log = require("log-to-file");
 
 exports.checkUpdateAndGetLinkDownload = async (linkAnime, lastEpisode, timeout) => {
   try {
@@ -23,9 +24,10 @@ exports.checkUpdateAndGetLinkDownload = async (linkAnime, lastEpisode, timeout) 
       status: 0,
     };
   } catch (error) {
+    log(error, "cheerio-log.txt");
     throw error;
   }
-}
+};
 
 
 exports.getLinkDownloadVideo720p = async (pageLink, timeout) => {
@@ -46,6 +48,7 @@ exports.getLinkDownloadVideo720p = async (pageLink, timeout) => {
     });
     return allLinkDownloads;
   } catch (error) {
+    log(error, "cheerio-log.txt");
     throw error;
   }
-}
+};

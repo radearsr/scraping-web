@@ -1,4 +1,5 @@
 const puppeteer = require("puppeteer");
+const log = require("log-to-file");
 
 exports.scrapingLinkStreamingVideo = async (link) => {
   let browser;
@@ -20,6 +21,7 @@ exports.scrapingLinkStreamingVideo = async (link) => {
       await scrapingVideo(link);
     }
   } catch (error) {
+    log(error, "puppeetter-log.txt");
     throw error;
   } finally {
     browser.close();

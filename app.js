@@ -3,11 +3,26 @@ const mysqlService = require("./services/mysql/MysqlService");
 const cheerioService = require("./services/cheerio/CheerioService");
 const teleService = require("./services/telegram/TeleServices");
 const utils = require("./utils");
+const log = require("log-to-file");
 
+
+const resetStatus = async () => {
+  try {
+    const currentDay = utils.getCurrentDay();
+    const animeAfterUpdate = await mysqlService.checkStatusUpdateAnime(currentDay);
+    console.log(animeAfterUpdate);
+    if (animeAfterUpdate.length > 0) {
+      await mysqlService.updateStatusAnime(currentDay)
+    }
+  } catch (error) {
+    log(error, "app-log.txt");
+    throw error;
+  }
+}
 
 const main = async () => {
   try {
-    const currentDay = utils.getCurrentDay()
+    const currentDay = utils.getCurrentDay();
     const animes = await mysqlService.getAnimesByDay(currentDay, "0");
     const linkPageDownloads = await Promise.all(animes.map( async (anime, index) => {
       const timeout = index * 5000;
@@ -53,20 +68,19 @@ const main = async () => {
 
 main();
 
-const time = utils.getRandomDuration(1800000, 2400000);
 setInterval( async () => {
   await main();
   await teleService.sendNotifFailed(process.env.BOT_TOKEN, process.env.GROUP_ID, "Waktu Mulai Ulang Dalam Menit", (time / 60000), "60");
-}, time);
+}, 300000);
 
 setInterval( async () => {
   let date = new Date();
   const hours = String(date.getHours()).padStart(2, "0");
   const seconds = String(date.getSeconds()).padStart(2, "0");
 
-  if ((hours === "00" && seconds >= "40") && (hours === "00" && seconds <= "46")) {
-    await teleService.sendNotifFailed(process.env.BOT_TOKEN, process.env.GROUP_ID, "ALERT", "Database Reset Status To 0", "69");
+  if ((hours === "00" && seconds > "40") && (hours === "00" && seconds <= "46")) {
     await resetStatus();
+    await teleService.sendNotifFailed(process.env.BOT_TOKEN, process.env.GROUP_ID, "ALERT", "Database Reset Status To 0", "69");
   }
   date = "";
 }, 1000);

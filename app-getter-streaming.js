@@ -13,6 +13,12 @@ const getterStreaming = async () => {
         });
         await mysqlService.insertLinkStreamingPage(mappedStreamingLinks);
         await mysqlService.updateStatusListAnime("1", animeLinks[0].id);
+        const _animeLinks = await mysqlService.getLinkAnimes("0");
+        if (_animeLinks.length > 0) {
+          await getterStreaming();
+        } else {
+          await teleService.sendNotifFailed(process.env.BOT_TOKEN, process.env.GROUP_ID, "Selesai", streamingLinks, "10");
+        }
       } else {
         await teleService.sendNotifFailed(process.env.BOT_TOKEN, process.env.GROUP_ID, "Link Page tidak didapat", streamingLinks, "10");
       }
@@ -27,10 +33,4 @@ const getterStreaming = async () => {
   }
 };
 
-const started = () => {
-  work = setInterval( async () => {
-    await getterStreaming();
-  }, 15000);
-}
-
-started();
+getterStreaming();

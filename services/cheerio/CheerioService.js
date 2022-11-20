@@ -53,7 +53,7 @@ exports.getLinkDownloadVideo720p = async (pageLink, timeout) => {
   }
 };
 
-exports.getLinkStreamingPagePerEpisode = async (pageLink, timeout) => {
+exports.getStreamingPagePerEpisode = async (pageLink, timeout=3000) => {
 	try {
     const response = await axios.get(pageLink, { timeout });
     if (response.status !== 200) {
@@ -64,7 +64,7 @@ exports.getLinkStreamingPagePerEpisode = async (pageLink, timeout) => {
     $("#content-wrap > div.ngirix > div:nth-child(4) > div.ep > a").each((_idx, el) => {
       const text = parseFloat($(el).text());
       const link = $(el).attr("href");
-			postTitles.push({
+			allLinkStreaming.push({
 				eps: text,
 				link: `https://185.224.82.193${link}`
 			});
@@ -76,7 +76,7 @@ exports.getLinkStreamingPagePerEpisode = async (pageLink, timeout) => {
 };
 
 
-exports.getStreamingLink = async (pageLink) => {
+exports.getStreamingVideo = async (pageLink, timeout=3000) => {
 	try {
     const response = await axios.get(pageLink, { timeout });
     if (response.status !== 200) {

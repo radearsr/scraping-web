@@ -36,10 +36,12 @@ exports.checkStatusUpdateAnime = async (day) => {
   return result;
 };
 
-exports.getLinkAnimes = async () => {
+exports.getLinkAnimes = async (status) => {
   const conn = await connectToDatabase();
-  const sql = "SELECT * FROM anime_lists WHERE title_anime LIKE 'a%' AND status='0'";
-  const result = await queryDatabase(conn, sql);
+  const sql = "SELECT * FROM anime_lists WHERE status=? LIMIT 1";
+  const sqlEscapeStr = [status];
+  console.log(mysql.format(sql, sqlEscapeStr));
+  const result = await queryDatabase(conn, sql, sqlEscapeStr);
   return result;
 };
 
@@ -47,7 +49,14 @@ exports.updateStatusListAnime = async (status, id) => {
   const conn = await connectToDatabase();
   const sql = "UPDATE anime_lists SET status=? WHERE id=?";
   const sqlEscapeStr = [status, id];
-  await queryDatabase(conn, sql, sqlEscapeStr);
+  const result = await queryDatabase(conn, sql, sqlEscapeStr);
+  return result;
 };
 
-exports.insertLink
+exports.insertLinkStreamingPage = async (data) => {
+  const conn = await connectToDatabase();
+  const sql = "INSERT INTO anime_eps (id_anime, episodes, link_episode, status) VALUES ?";
+  const sqlEscapeStr = [data];
+  console.log(mysql.format(sql, sqlEscapeStr));
+  await queryDatabase(conn, sql, sqlEscapeStr);
+};

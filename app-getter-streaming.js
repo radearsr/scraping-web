@@ -14,7 +14,7 @@ const getAnimePageLinks = async () => {
   }
 };
 
-const getLinkPerEps = async () => {
+const getLinkPerEps = async (linkPage) => {
   try {
     console.log("getLinkPerEps");
     const streamingLinks = await cheerioService.getStreamingPagePerEpisode(linkPage);

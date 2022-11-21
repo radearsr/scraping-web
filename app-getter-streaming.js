@@ -2,39 +2,52 @@ const mysqlService = require("./services/mysql/MysqlService");
 const cheerioService = require("./services/cheerio/CheerioService");
 const teleService = require("./services/telegram/TeleServices");
 
-const getterStreaming = async () => {
+const getAnimePageLinks = async () => {
   try {
-    const animeLinks = await mysqlService.getLinkAnimes("0");
-    if (animeLinks.length > 0) {
-      const streamingLinks = await cheerioService.getStreamingPagePerEpisode(animeLinks[0].link);
-      if (streamingLinks.length > 0) {
-        const mappedStreamingLinks = streamingLinks.map((streamingLink) => {
-          return [animeLinks[0].id, streamingLink.eps, streamingLink.link, "0"];
-        });
-        await mysqlService.insertLinkStreamingPage(mappedStreamingLinks);
-        await mysqlService.updateStatusListAnime("1", animeLinks[0].id);
-        const _animeLinks = await mysqlService.getLinkAnimes("0");
-        const time = 20000 * streamingLinks.length;
-        if (_animeLinks.length > 0) {
-          console.log("Aku masuk");
-          setTimeout( async () => {
-            await getterStreaming();
-          }, time);
-        } else {
-          await teleService.sendNotifFailed(process.env.BOT_TOKEN, process.env.GROUP_ID, "Selesai", streamingLinks, "10");
-        }
-      } else {
-        await teleService.sendNotifFailed(process.env.BOT_TOKEN, process.env.GROUP_ID, "Link Page tidak didapat", streamingLinks, "10");
-      }
-    } else {
-      clearInterval(work)
-      await teleService.sendNotifFailed(process.env.BOT_TOKEN, process.env.GROUP_ID, "All Link Berhasil diupdate...", error, "20");
-    }
+    const result = await mysqlService.getLinkAnimes("0");
+    return result;
   } catch (error) {
-    await teleService.sendNotifFailed(process.env.BOT_TOKEN, process.env.GROUP_ID, "Getter Streaming Page", error, "23");
     console.log(error);
+    await teleService.sendNotifFailed(process.env.BOT_TOKEN, process.env.GROUP_ID, "Get Page Streaming Links", error, "10");
     throw error;
   }
 };
 
-getterStreaming();
+const getLinkPerEps = async () => {
+  try {
+    const streamingLinks = await cheerioService.getStreamingPagePerEpisode(linkPage);
+    if (streamingLinks.length > 0) {
+      const mappedStreamingLinks = streamingLinks.map((streamingLink) => {
+        return [animeLinks[0].id, streamingLink.eps, streamingLink.link, "0"]
+      });
+      await mysqlService.insertLinkStreamingPage(mappedStreamingLinks);
+    };
+  } catch (error) {
+    console.log(error);
+    await teleService.sendNotifFailed(process.env.BOT_TOKEN, process.env.GROUP_ID, "Get Link Per Eps", error, "10");
+    throw error;
+  }
+};
+
+const updateAnimeLinkStatus = async (animeId) => {
+  try {
+    await mysqlService.updateStatusListAnime("1", animeId);
+  } catch (error) {
+    console.log(error);
+    await teleService.sendNotifFailed(process.env.BOT_TOKEN, process.env.GROUP_ID, "Update Anime Link Status", error, "10");
+    throw error;
+  }
+}
+
+const main = async () => {
+  let animeLinks = await getAnimePageLinks();
+  animeLinks.forEach( async (animeLink, idx) => {
+    await getLinkPerEps(animeLink.link);
+    await updateAnimeLinkStatus(animeLink.id);
+    if (idx === (animeLinks.length - 1)) {
+      setTimeout(() => {
+        main();
+      }, 60000);
+    }
+  });
+}

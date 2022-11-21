@@ -14,13 +14,13 @@ const getAnimePageLinks = async () => {
   }
 };
 
-const getLinkPerEps = async (linkPage) => {
+const getLinkPerEps = async (linkPage, animeId) => {
   try {
     console.log("getLinkPerEps");
     const streamingLinks = await cheerioService.getStreamingPagePerEpisode(linkPage);
     if (streamingLinks.length > 0) {
       const mappedStreamingLinks = streamingLinks.map((streamingLink) => {
-        return [animeLinks[0].id, streamingLink.eps, streamingLink.link, "0"]
+        return [animeId, streamingLink.eps, streamingLink.link, "0"];
       });
       await mysqlService.insertLinkStreamingPage(mappedStreamingLinks);
     };
@@ -46,7 +46,7 @@ const main = async () => {
   console.log("main");
   let animeLinks = await getAnimePageLinks();
   animeLinks.forEach( async (animeLink, idx) => {
-    await getLinkPerEps(animeLink.link);
+    await getLinkPerEps(animeLink.link, animeLink.id);
     await updateAnimeLinkStatus(animeLink.id);
     if (idx === (animeLinks.length - 1)) {
       setTimeout(() => {

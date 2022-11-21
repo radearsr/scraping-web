@@ -4,6 +4,7 @@ const teleService = require("./services/telegram/TeleServices");
 
 const getAnimePageLinks = async () => {
   try {
+    console.log("getAnimePageLinks");
     const result = await mysqlService.getLinkAnimes("0");
     return result;
   } catch (error) {
@@ -15,6 +16,7 @@ const getAnimePageLinks = async () => {
 
 const getLinkPerEps = async () => {
   try {
+    console.log("getLinkPerEps");
     const streamingLinks = await cheerioService.getStreamingPagePerEpisode(linkPage);
     if (streamingLinks.length > 0) {
       const mappedStreamingLinks = streamingLinks.map((streamingLink) => {
@@ -31,6 +33,7 @@ const getLinkPerEps = async () => {
 
 const updateAnimeLinkStatus = async (animeId) => {
   try {
+    console.log("updateAnimeLinkStatus");
     await mysqlService.updateStatusListAnime("1", animeId);
   } catch (error) {
     console.log(error);
@@ -40,6 +43,7 @@ const updateAnimeLinkStatus = async (animeId) => {
 }
 
 const main = async () => {
+  console.log("main");
   let animeLinks = await getAnimePageLinks();
   animeLinks.forEach( async (animeLink, idx) => {
     await getLinkPerEps(animeLink.link);

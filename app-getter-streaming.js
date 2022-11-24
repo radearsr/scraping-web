@@ -14,7 +14,7 @@ const getAnimePageLinks = async () => {
   }
 };
 
-const getLinkPerEps = async (linkPage, animeId) => {
+const getLinkPerEpsAndInsert = async (linkPage, animeId) => {
   try {
     console.log("getLinkPerEps");
     const streamingLinks = await cheerioService.getStreamingPagePerEpisode(linkPage);
@@ -22,7 +22,8 @@ const getLinkPerEps = async (linkPage, animeId) => {
       const mappedStreamingLinks = streamingLinks.map((streamingLink) => {
         return [animeId, streamingLink.eps, streamingLink.link, "0"];
       });
-      await mysqlService.insertLinkStreamingPage(mappedStreamingLinks);
+      const affectedRow = await mysqlService.insertLinkStreamingPage(mappedStreamingLinks);
+      return affectedRow;
     };
   } catch (error) {
     console.log(error);
@@ -33,7 +34,6 @@ const getLinkPerEps = async (linkPage, animeId) => {
 
 const updateAnimeLinkStatus = async (animeId) => {
   try {
-    console.log("updateAnimeLinkStatus");
     await mysqlService.updateStatusListAnime("1", animeId);
   } catch (error) {
     console.log(error);
@@ -46,14 +46,20 @@ const main = async () => {
   console.log("main");
   let animeLinks = await getAnimePageLinks();
   animeLinks.forEach( async (animeLink, idx) => {
-    await getLinkPerEps(animeLink.link, animeLink.id);
-    await updateAnimeLinkStatus(animeLink.id);
-    if (idx === (animeLinks.length - 1)) {
-      setTimeout(() => {
-        main();
-      }, 60000);
-    }
+    const totalEps = await cheerioService.getTotalEpisode(animeLink.link);
+    await mysqlService.updateTotalEpsAnimeList(totalEps, animeLink.id);
+    // if (totalEps <= 50) {
+    //   const insertedEps = await getLinkPerEpsAndInsert(animeLink.link, animeLink.id);
+    //   if (totalEps === insertedEps) {
+    //     await mysqlService.updateStatusListAnime("1", animeLink.id);
+    //   }
+    // } else {
+    //   return;
+    // }
   });
 };
 
-main();
+
+setInterval(() => {
+  main();
+}, 10000);

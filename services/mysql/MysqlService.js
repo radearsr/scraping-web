@@ -38,7 +38,7 @@ exports.checkStatusUpdateAnime = async (day) => {
 
 exports.getLinkAnimes = async (status) => {
   const conn = await connectToDatabase();
-  const sql = "SELECT * FROM anime_lists WHERE status=? LIMIT 2";
+  const sql = "SELECT * FROM anime_lists WHERE status=? AND total_eps IS NULL LIMIT 100";
   const sqlEscapeStr = [status];
   console.log(mysql.format(sql, sqlEscapeStr));
   const result = await queryDatabase(conn, sql, sqlEscapeStr);
@@ -53,10 +53,20 @@ exports.updateStatusListAnime = async (status, id) => {
   return result;
 };
 
+exports.updateTotalEpsAnimeList= async (totalEps, id) => {
+  const conn = await connectToDatabase();
+  const sql = "UPDATE anime_lists SET total_eps=? WHERE id=?";
+  const sqlEscapeStr = [totalEps, id];
+  const result = await queryDatabase(conn, sql, sqlEscapeStr);
+  console.log(mysql.format(sql, sqlEscapeStr));
+  return result;
+};
+
 exports.insertLinkStreamingPage = async (data) => {
   const conn = await connectToDatabase();
   const sql = "INSERT INTO anime_eps (id_anime, episodes, link_episode, status) VALUES ?";
   const sqlEscapeStr = [data];
   console.log(mysql.format(sql, sqlEscapeStr));
-  await queryDatabase(conn, sql, sqlEscapeStr);
+  const result = await queryDatabase(conn, sql, sqlEscapeStr);
+  return result.affectedRows;
 };

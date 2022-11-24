@@ -75,6 +75,20 @@ exports.getStreamingPagePerEpisode = async (pageLink, timeout=3000) => {
 	}
 };
 
+exports.getTotalEpisode = async (pageLink, timeout=3000) => {
+	try {
+    const response = await axios.get(pageLink, { timeout });
+    if (response.status !== 200) {
+      throw new Error("Status : ", response.status);
+    }
+    const $ = cheerio.load(response.data);
+    const totalEps = $("#content-wrap > div.ngirix > div:nth-child(4) > div.ep > a").length;
+    return totalEps;
+	} catch (error) {
+		throw error;
+	}
+};
+
 
 exports.getStreamingVideo = async (pageLink, timeout=3000) => {
 	try {

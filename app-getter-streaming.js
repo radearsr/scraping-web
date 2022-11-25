@@ -48,6 +48,8 @@ const main = async () => {
   });
 };
 
-setInterval(() => {
-  main();
-}, 10000);
+main();
+
+// setInterval(() => {
+//   main();
+// }, 10000);

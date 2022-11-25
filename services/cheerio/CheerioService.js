@@ -62,10 +62,9 @@ exports.getStreamingPagePerEpisode = async (pageLink, timeout=3000) => {
     const $ = cheerio.load(response.data);
     const allLinkStreaming = [];
     $("#content-wrap > div.ngirix > div:nth-child(4) > div.ep > a").each((_idx, el) => {
-      const text = parseFloat($(el).text());
       const link = $(el).attr("href");
 			allLinkStreaming.push({
-				eps: text,
+				eps: parseFloat(_idx) + 1,
 				link: `https://185.224.82.193${link}`
 			});
     });

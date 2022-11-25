@@ -49,6 +49,7 @@ exports.updateStatusListAnime = async (status, id) => {
   const conn = await connectToDatabase();
   const sql = "UPDATE anime_lists SET status=? WHERE id=?";
   const sqlEscapeStr = [status, id];
+  console.log(mysql.format(sql, sqlEscapeStr));
   const result = await queryDatabase(conn, sql, sqlEscapeStr);
   return result;
 };

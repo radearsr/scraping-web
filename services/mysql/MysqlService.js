@@ -38,7 +38,7 @@ exports.checkStatusUpdateAnime = async (day) => {
 
 exports.getLinkAnimes = async (status) => {
   const conn = await connectToDatabase();
-  const sql = "SELECT * FROM anime_lists WHERE status=? AND total_eps IS NULL LIMIT 100";
+  const sql = "SELECT * FROM anime_lists WHERE status=? AND total_eps IS NULL LIMIT 10";
   const sqlEscapeStr = [status];
   console.log(mysql.format(sql, sqlEscapeStr));
   const result = await queryDatabase(conn, sql, sqlEscapeStr);

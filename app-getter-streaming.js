@@ -45,7 +45,7 @@ const updateAnimeLinkStatus = async (animeId) => {
 const main = async () => {
   console.log("main");
   let animeLinks = await getAnimePageLinks();
-  animeLinks.forEach( async (animeLink, idx) => {
+  await Promise.all(animeLinks.map( async (animeLink, idx) => {
     const totalEps = await cheerioService.getTotalEpisode(animeLink.link);
     await mysqlService.updateTotalEpsAnimeList(totalEps, animeLink.id);
     // if (totalEps <= 50) {
@@ -56,10 +56,16 @@ const main = async () => {
     // } else {
     //   return;
     // }
-  });
+  }));
+  
 };
 
 
+// const list = [1, 2, 3, 4];
+
+// Promise.all(list.map( async (a) => {
+  //   await main();
+  // }));
 setInterval(() => {
   main();
 }, 10000);

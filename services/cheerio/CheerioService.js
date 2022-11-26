@@ -62,11 +62,14 @@ exports.getStreamingPagePerEpisode = async (pageLink, timeout=3000) => {
     const $ = cheerio.load(response.data);
     const allLinkStreaming = [];
     $("#content-wrap > div.ngirix > div:nth-child(4) > div.ep > a").each((_idx, el) => {
-      const link = $(el).attr("href");
-			allLinkStreaming.push({
-				eps: parseFloat(_idx) + 1,
-				link: `https://185.224.82.193${link}`
-			});
+      let link = $(el).attr("href");
+      if(link === "//" || link === "#" || link === "" || link === undefined){
+        link = Date.now() + "invalid";
+      }
+      allLinkStreaming.push({
+        eps: parseFloat(_idx) + 1,
+        link: `https://185.224.82.193${link}`
+      });
     });
     return allLinkStreaming;
 	} catch (error) {

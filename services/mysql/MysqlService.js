@@ -47,7 +47,7 @@ exports.getLinkAnimes = async (status) => {
 
 exports.getLinkPagePerEps = async (status) => {
   const conn = await connectToDatabase();
-  const sql = "SELECT * FROM anime_eps WHERE status=? LIMIT 1";
+  const sql = "SELECT * FROM anime_eps WHERE status=? AND link_episode IS NOT NULL LIMIT 1";
   const sqlEscapeStr = [status];
   console.log(mysql.format(sql, sqlEscapeStr));
   const result = await queryDatabase(conn, sql, sqlEscapeStr);

@@ -1,6 +1,8 @@
 const mysqlService = require("./services/mysql/MysqlService");
 const cheerioService = require("./services/cheerio/CheerioService");
 const teleService = require("./services/telegram/TeleServices");
+let timeoutAxios = 0;
+
 
 const getLinkVideoPerEpsAndAction = async (linkPage, episodeId) => {
   try {
@@ -19,24 +21,38 @@ const getLinkVideoPerEpsAndAction = async (linkPage, episodeId) => {
     }
   } catch (error) {
     console.log(error);
-    await teleService.sendNotifFailed(process.env.BOT_TOKEN, process.env.GROUP_ID, "Get Link Video Per Eps And Action", error, "10");
-    throw error;
+    if (error.message === "timeout of 3000ms exceeded") {
+      if (timeoutAxios > 5) {
+        await mysqlService.updateStatusListEpisode("3", episodeId);
+        timeoutAxios = 0;
+      }
+      timeoutAxios++;
+    } else {
+      await teleService.sendNotifFailed(process.env.BOT_TOKEN, process.env.GROUP_ID, "Get Link Video Per Eps And Action", error, "10");
+      throw error;
+    }
   }
 };
 
+// const main = async () => {
+//   try {
+//     const streamingVideos = await mysqlService.getLinkPagePerEps("0");
+//     streamingVideos.forEach( async (streamingVideo) => {
+//       await getLinkVideoPerEpsAndAction(streamingVideo.link_episode, streamingVideo.id);
+//     });
+//   } catch (error) {
+//     console.log(error);
+//     await teleService.sendNotifFailed(process.env.BOT_TOKEN, process.env.GROUP_ID, "Get Link Video Per Eps And Action", error, "10");
+//     throw error;   
+//   }
+// }
+
+// setInterval(() => {
+//   main();
+// }, 5000);
+
 const main = async () => {
-  try {
-    const streamingVideos = await mysqlService.getLinkPagePerEps("0");
-    streamingVideos.forEach( async (streamingVideo) => {
-      await getLinkVideoPerEpsAndAction(streamingVideo.link_episode, streamingVideo.id);
-    });
-  } catch (error) {
-    console.log(error);
-    await teleService.sendNotifFailed(process.env.BOT_TOKEN, process.env.GROUP_ID, "Get Link Video Per Eps And Action", error, "10");
-    throw error;   
-  }
+  await getLinkVideoPerEpsAndAction("https://185.224.82.193/ajin-episode-08-2/", 22)
 }
 
-setInterval(() => {
-  main();
-}, 5000);
+main()

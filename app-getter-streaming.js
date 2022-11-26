@@ -34,25 +34,25 @@ const getLinkVideoPerEpsAndAction = async (linkPage, episodeId) => {
   }
 };
 
-// const main = async () => {
-//   try {
-//     const streamingVideos = await mysqlService.getLinkPagePerEps("0");
-//     streamingVideos.forEach( async (streamingVideo) => {
-//       await getLinkVideoPerEpsAndAction(streamingVideo.link_episode, streamingVideo.id);
-//     });
-//   } catch (error) {
-//     console.log(error);
-//     await teleService.sendNotifFailed(process.env.BOT_TOKEN, process.env.GROUP_ID, "Get Link Video Per Eps And Action", error, "10");
-//     throw error;   
-//   }
-// }
-
-// setInterval(() => {
-//   main();
-// }, 5000);
-
 const main = async () => {
-  await getLinkVideoPerEpsAndAction("https://185.224.82.193/ajin-episode-08-2/", 22)
+  try {
+    const streamingVideos = await mysqlService.getLinkPagePerEps("0");
+    streamingVideos.forEach( async (streamingVideo) => {
+      await getLinkVideoPerEpsAndAction(streamingVideo.link_episode, streamingVideo.id);
+    });
+  } catch (error) {
+    console.log(error);
+    await teleService.sendNotifFailed(process.env.BOT_TOKEN, process.env.GROUP_ID, "Get Link Video Per Eps And Action", error, "10");
+    throw error;   
+  }
 }
 
-main()
+setInterval(() => {
+  main();
+}, 5000);
+
+// const main = async () => {
+//   await getLinkVideoPerEpsAndAction("https://185.224.82.193/ajin-episode-08-2/", 22)
+// }
+
+// main()

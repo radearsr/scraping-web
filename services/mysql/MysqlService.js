@@ -1,5 +1,6 @@
 const { connectToDatabase, queryDatabase, mysql} = require("../../database/methods");
 
+// Monitoring Anime
 exports.getAnimesByDay = async (day, status) => {
   const conn = await connectToDatabase();
   const sql = "SELECT * FROM monitoring_anime WHERE day=? AND status=?";
@@ -36,6 +37,7 @@ exports.checkStatusUpdateAnime = async (day) => {
   return result;
 };
 
+// Anime Lists
 exports.getLinkAnimes = async (status) => {
   const conn = await connectToDatabase();
   const sql = "SELECT * FROM anime_lists WHERE status=? LIMIT 1";
@@ -45,19 +47,38 @@ exports.getLinkAnimes = async (status) => {
   return result;
 };
 
-exports.getLinkPagePerEps = async (status) => {
+exports.insertLinkStreamingPage = async (data) => {
   const conn = await connectToDatabase();
-  const sql = "SELECT * FROM anime_eps WHERE status=? AND link_episode IS NOT NULL LIMIT 1";
-  const sqlEscapeStr = [status];
+  const sql = "INSERT INTO anime_eps (id_anime, episodes, link_episode, status) VALUES ?";
+  const sqlEscapeStr = [data];
   console.log(mysql.format(sql, sqlEscapeStr));
   const result = await queryDatabase(conn, sql, sqlEscapeStr);
-  return result;
+  return result.affectedRows;
 };
 
 exports.updateStatusListAnime = async (status, id) => {
   const conn = await connectToDatabase();
   const sql = "UPDATE anime_lists SET status=? WHERE id=?";
   const sqlEscapeStr = [status, id];
+  console.log(mysql.format(sql, sqlEscapeStr));
+  const result = await queryDatabase(conn, sql, sqlEscapeStr);
+  return result;
+};
+
+exports.updateTotalEpsAnimeList= async (totalEps, id) => {
+  const conn = await connectToDatabase();
+  const sql = "UPDATE anime_lists SET total_eps=? WHERE id=?";
+  const sqlEscapeStr = [totalEps, id];
+  const result = await queryDatabase(conn, sql, sqlEscapeStr);
+  console.log(mysql.format(sql, sqlEscapeStr));
+  return result;
+};
+
+// Anime Episode List
+exports.getLinkPagePerEps = async (status) => {
+  const conn = await connectToDatabase();
+  const sql = "SELECT * FROM anime_eps WHERE status=? AND link_episode IS NOT NULL LIMIT 1";
+  const sqlEscapeStr = [status];
   console.log(mysql.format(sql, sqlEscapeStr));
   const result = await queryDatabase(conn, sql, sqlEscapeStr);
   return result;
@@ -71,24 +92,6 @@ exports.updateStatusListEpisode = async (status, id) => {
   await queryDatabase(conn, sql, sqlEscapeStr);
 };
 
-exports.updateTotalEpsAnimeList= async (totalEps, id) => {
-  const conn = await connectToDatabase();
-  const sql = "UPDATE anime_lists SET total_eps=? WHERE id=?";
-  const sqlEscapeStr = [totalEps, id];
-  const result = await queryDatabase(conn, sql, sqlEscapeStr);
-  console.log(mysql.format(sql, sqlEscapeStr));
-  return result;
-};
-
-exports.insertLinkStreamingPage = async (data) => {
-  const conn = await connectToDatabase();
-  const sql = "INSERT INTO anime_eps (id_anime, episodes, link_episode, status) VALUES ?";
-  const sqlEscapeStr = [data];
-  console.log(mysql.format(sql, sqlEscapeStr));
-  const result = await queryDatabase(conn, sql, sqlEscapeStr);
-  return result.affectedRows;
-};
-
 exports.insertStreamingVideo = async (data) => {
   const conn = await connectToDatabase();
   const sql = "INSERT INTO video_req_sources (id_episode, link_video, link_video_hd, status) VALUES ?";
@@ -97,5 +100,29 @@ exports.insertStreamingVideo = async (data) => {
   await queryDatabase(conn, sql, sqlEscapeStr);
 };
 
+// Anime Streaming Player
+exports.getSourceStreaming = async (status) => {
+  const conn = await connectToDatabase();
+  const sql = "SELECT * FROM video_req_sources WHERE status=? LIMIT 1";
+  const sqlEscapeStr = [status];
+  console.log(mysql.format(sql, sqlEscapeStr));
+  const result = await queryDatabase(conn, sql, sqlEscapeStr);
+  return result;
+};
 
+exports.updateSourceStreaming = async (status, id) => {
+  const conn = await connectToDatabase();
+  const sql = "UPDATE video_req_sources SET status=? WHERE id=?";
+  const sqlEscapeStr = [status, id];
+  console.log(mysql.format(sql, sqlEscapeStr));
+  await queryDatabase(conn, sql, sqlEscapeStr);
+}
 
+exports.insertLinkVideoPlayer = async (data) => {
+  const conn = await connectToDatabase();
+  const sql = "INSERT INTO video_res_sources (id_video_source, link_video, link_video_hd) VALUES ?";
+  const sqlEscapeStr = [data];
+  console.log(mysql.format(sql, sqlEscapeStr));
+  const result = await queryDatabase(conn, sql, sqlEscapeStr);
+  return result.affectedRows;
+}

@@ -103,7 +103,7 @@ exports.insertStreamingVideo = async (data) => {
 // Anime Streaming Player
 exports.getSourceStreaming = async (status) => {
   const conn = await connectToDatabase();
-  const sql = "SELECT * FROM video_req_sources WHERE status=? LIMIT 1";
+  const sql = "SELECT * FROM video_req_sources WHERE status=? AND (link_video IS NOT NULL OR link_video_hd IS NOT NULL) LIMIT 1";
   const sqlEscapeStr = [status];
   console.log(mysql.format(sql, sqlEscapeStr));
   const result = await queryDatabase(conn, sql, sqlEscapeStr);

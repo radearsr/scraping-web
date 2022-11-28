@@ -119,4 +119,4 @@ const main = async () => {
 main();
 setInterval(() => {
   main();
-}, 60000);
+}, 120000);

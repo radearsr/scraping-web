@@ -12,8 +12,8 @@ exports.scrapingLinkStreamingVideo = async (link) => {
       browser = await puppeteer.launch({headless: true, args: ["--no-sandbox"]});
     }
     const page = await browser.newPage();
-    await page.goto(link, {waitUntil: "networkidle2", timeout: 300000});
-    await page.waitForSelector("#player > .jw-wrapper > .jw-media > .jw-video", { timeout: 300000 });
+    await page.goto(link, {waitUntil: "networkidle2", timeout: 400000});
+    await page.waitForSelector("#player > .jw-wrapper > .jw-media > .jw-video", { timeout: 400000 });
     const linkStreaming = await page.$eval("#player > .jw-wrapper > .jw-media > .jw-video", (el) => el.src);
     if (linkStreaming !== "") {
       return linkStreaming;

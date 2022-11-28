@@ -18,9 +18,10 @@ exports.scrapingLinkStreamingVideo = async (link) => {
     if (linkStreaming !== "") {
       return linkStreaming;
     } else {
-      await scrapingVideo(link);
+      await scrapingLinkStreamingVideo(link);
     }
   } catch (error) {
+    console.log(error);
     log(error, "puppeetter-log.txt");
     throw error;
   } finally {

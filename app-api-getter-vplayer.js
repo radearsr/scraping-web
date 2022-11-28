@@ -7,6 +7,7 @@ const app = express();
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true}));
 
+
 app.post("/getter", async (req, res) => {
   try {
     const { link_streaming } = req.body;
@@ -18,6 +19,7 @@ app.post("/getter", async (req, res) => {
       result,
     });
   } catch (error) {
+    console.log(error);
     res.statusCode = 500;
     res.json({
       status: "error",
